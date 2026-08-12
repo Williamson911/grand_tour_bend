@@ -1,0 +1,63 @@
+package be.technifutur.grandtourbend;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+public interface SearchSpecification {
+
+    private static <T> Specification<T> search(SearchParam<T> searchParam){
+        return (root, query, cb) -> switch (searchParam.getOp()) {
+            case EQ -> cb.equal(root.get(searchParam.getField()),searchParam.getValue());
+            case NE -> cb.notEqual(root.get(searchParam.getField()),searchParam.getValue());
+            case GT -> {
+                try {
+                    Number number = new BigDecimal(searchParam.getValue().toString());
+                    yield cb.gt(root.get(searchParam.getField()), number);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Value must be a number");
+                }
+            }
+            case GTE -> {
+                try {
+                    Number number = new BigDecimal(searchParam.getValue().toString());
+                    yield cb.ge(root.get(searchParam.getField()), number);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Value must be a number");
+                }
+            }
+            case LT -> {
+                try {
+                    Number number = new BigDecimal(searchParam.getValue().toString());
+                    yield cb.lt(root.get(searchParam.getField()), number);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Value must be a number");
+                }
+            }
+            case LTE -> {
+                try {
+                    Number number = new BigDecimal(searchParam.getValue().toString());
+                    yield cb.le(root.get(searchParam.getField()), number);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Value must be a number");
+                }
+            }
+            case START -> cb.like(root.get(searchParam.getField()),searchParam.getValue() + "%");
+            case END -> cb.like(root.get(searchParam.getField()),"%" + searchParam.getValue());
+            case CONTAINS -> cb.like(root.get(searchParam.getField()),"%" + searchParam.getValue() + "%");
+            case IN -> root.get(searchParam.getField()).in(((String)searchParam.getValue()).split(","));
+            case NIN -> cb.not(root.get(searchParam.getField())).in(((String)searchParam.getValue()).split(","));
+        };
+    }
+
+    static <T> List<Specification<T>> search(Map<String, String> params) {
+
+        List<SearchParam<T>> searchParams = SearchParam.create(params);
+
+        return searchParams.stream().map(
+                SearchSpecification::search
+        ).toList();
+    }
+}
