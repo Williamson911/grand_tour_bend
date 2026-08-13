@@ -5,6 +5,9 @@ import be.technifutur.grandtourbend.models.auth.requests.RegisterRequest;
 import be.technifutur.grandtourbend.models.auth.responses.AuthResponse;
 import be.technifutur.grandtourbend.models.auth.responses.RegisterResponse;
 import be.technifutur.grandtourbend.services.security.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,11 +22,15 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Inscription et connexion (génération du token JWT)")
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/register")
+    @Operation(summary = "Créer un compte utilisateur")
+    @ApiResponse(responseCode = "201", description = "Compte créé")
+    @ApiResponse(responseCode = "409", description = "Nom d'utilisateur déjà pris")
     public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
@@ -34,6 +41,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Se connecter", description = "Renvoie un token JWT (valide 15 minutes) à utiliser dans le header Authorization: Bearer <token>.")
+    @ApiResponse(responseCode = "200", description = "Token généré")
+    @ApiResponse(responseCode = "401", description = "Identifiants invalides")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
