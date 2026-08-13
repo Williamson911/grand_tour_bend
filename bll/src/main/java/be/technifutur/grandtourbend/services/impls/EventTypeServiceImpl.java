@@ -1,7 +1,7 @@
 package be.technifutur.grandtourbend.services.impls;
 
 import be.technifutur.grandtourbend.EventTypeService;
-import be.technifutur.grandtourbend.models.eventType.Responses.EventTypeResponse;
+import be.technifutur.grandtourbend.models.eventType.responses.EventTypeResponse;
 import be.technifutur.grandtourbend.repositories.EventTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

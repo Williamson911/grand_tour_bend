@@ -1,7 +1,7 @@
 package be.technifutur.grandtourbend.models.controller;
 
 import be.technifutur.grandtourbend.EventTypeService;
-import be.technifutur.grandtourbend.models.eventType.Responses.EventTypeResponse;
+import be.technifutur.grandtourbend.models.eventType.responses.EventTypeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

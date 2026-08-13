@@ -1,4 +1,4 @@
-package be.technifutur.grandtourbend.models.eventType.Responses;
+package be.technifutur.grandtourbend.models.eventType.responses;
 
 import be.technifutur.grandtourbend.entities.EventType;
 

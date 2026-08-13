@@ -1,0 +1,41 @@
+package be.technifutur.grandtourbend.models.results.responses;
+
+import be.technifutur.grandtourbend.entities.MatchResult;
+import be.technifutur.grandtourbend.entities.Results;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public record ResultsResponse(
+        UUID id,
+        UUID userId,
+        UUID eventId,
+        String deckName,
+        String leaderPlayed,
+        Integer  placement,
+        Integer totalPlayers,
+        BigDecimal prizes,
+        String notes,
+        List<MatchResult> matches,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
+    public static ResultsResponse fromResults(Results r) {
+        return new ResultsResponse(
+                r.getId(),
+                r.getUser().getId(),
+                r.getEvent().getId(),
+                r.getDeckName(),
+                r.getLeaderPlayed(),
+                r.getPlacement(),
+                r.getTotalPlayers(),
+                r.getPrizes(),
+                r.getNotes(),
+                r.getMatches(),
+                r.getCreatedAt(),
+                r.getUpdatedAt()
+        );
+    }
+}

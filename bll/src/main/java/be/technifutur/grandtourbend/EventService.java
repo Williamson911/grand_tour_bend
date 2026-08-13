@@ -5,11 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface EventService {
     Page<Event> findAll(Map<String, String> params, Pageable pageable);
 
-    Event findById(String id);
+    Event findById(UUID id);
 
-    String save(Event event);
+    UUID save(Event event, Long eventTypeId);
 }

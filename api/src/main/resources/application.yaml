@@ -13,3 +13,14 @@ spring:
       hibernate:
         default_schema: public
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:william.williamson.91@gmail.com}
+    password: ${MAIL_PASSWORD:***REDACTED***}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

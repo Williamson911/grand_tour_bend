@@ -2,7 +2,6 @@ package be.technifutur.grandtourbend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.UUID;
 
 @Entity
 @Table(name = "registrations",
@@ -12,7 +11,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 
-public class Registration extends BaseEntity<UUID> {
+public class Registration extends UuidBaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "user_id", nullable = false)
     @Getter

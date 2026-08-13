@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface EventRepository extends JpaRepository<Event,String>, JpaSpecificationExecutor<Event> {
+public interface EventRepository extends JpaRepository<Event, UUID>, JpaSpecificationExecutor<Event> {
 
     @Query("select count(e) > 0 from Event e where e.name ilike :name")
     boolean existsByName(String name);

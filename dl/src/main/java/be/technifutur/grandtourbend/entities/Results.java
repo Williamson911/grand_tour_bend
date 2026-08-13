@@ -7,14 +7,14 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 @Entity
-@Table(name = "results")
+@Table(name = "results",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}))
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Results extends  BaseEntity<UUID> {
+public class Results extends UuidBaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "user_id", nullable = false)
     @Getter

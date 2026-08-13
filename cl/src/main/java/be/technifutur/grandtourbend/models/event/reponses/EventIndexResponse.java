@@ -1,28 +1,31 @@
 package be.technifutur.grandtourbend.models.event.reponses;
 
 import be.technifutur.grandtourbend.entities.Event;
-import be.technifutur.grandtourbend.enums.EventType;
 import be.technifutur.grandtourbend.models.address.responses.AddressResponse;
+import be.technifutur.grandtourbend.models.eventType.responses.EventTypeResponse;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record EventIndexResponse(
-        String id,
+        UUID id,
         String name,
-        EventType type,
+        EventTypeResponse type,
         LocalDate date,
         AddressResponse address,
-        String registerLink
+        String registerLink,
+        boolean registered
 ) {
 
-    public static EventIndexResponse fromEvent(Event e) {
+    public static EventIndexResponse fromEvent(Event e, boolean registered) {
         return new EventIndexResponse(
                 e.getId(),
                 e.getName(),
-                e.getType(),
+                EventTypeResponse.fromEventType(e.getType()),
                 e.getDate(),
                 AddressResponse.fromAddress(e.getAddress()),
-                e.getRegisterLink()
+                e.getRegisterLink(),
+                registered
         );
     }
 }

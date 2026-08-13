@@ -1,6 +1,6 @@
 package be.technifutur.grandtourbend;
 
-import be.technifutur.grandtourbend.models.eventType.Responses.EventTypeResponse;
+import be.technifutur.grandtourbend.models.eventType.responses.EventTypeResponse;
 
 import java.util.List;
 

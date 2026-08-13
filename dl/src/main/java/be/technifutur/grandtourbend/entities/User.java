@@ -2,28 +2,20 @@ package be.technifutur.grandtourbend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "user_")
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
-@ToString(exclude = "password")
-public class User implements UserDetails {
-
-    @Id
-    @Getter
-    private UUID id;
+@EqualsAndHashCode(callSuper = true, exclude = {"username", "email", "password", "bandaiTcgId", "roles"})
+@ToString(callSuper = true, exclude = "password")
+public class User extends UuidBaseEntity implements UserDetails {
 
     @Column(nullable = false, unique = true)
     @Getter @Setter
@@ -50,27 +42,10 @@ public class User implements UserDetails {
     @Getter
     private Set<Role> roles = new HashSet<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    @Getter
-    private OffsetDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    @Getter
-    private OffsetDateTime updatedAt;
-
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-    }
-
-    @PrePersist
-    public void generateId() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
     }
 
     @Override
