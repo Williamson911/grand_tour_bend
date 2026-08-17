@@ -158,6 +158,7 @@ public class AuthServiceImpl implements AuthService {
 
             Context context = new Context();
             context.setVariable("username", user.getUsername());
+            context.setVariable("email", user.getEmail());
             context.setVariable(
                     "resetLink",
                     frontendUrl + "/auth/reset?token=" + user.getPasswordResetToken()
