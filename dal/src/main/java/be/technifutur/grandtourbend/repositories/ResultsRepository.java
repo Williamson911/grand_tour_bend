@@ -15,4 +15,6 @@ public interface ResultsRepository extends JpaRepository<Results, UUID> {
     List<Results> findByUser_Id(UUID userId);
 
     Optional<Results> findByUser_IdAndEvent_Id(UUID userId, UUID eventId);
+
+    void deleteAllByUser_Id(UUID userId);
 }

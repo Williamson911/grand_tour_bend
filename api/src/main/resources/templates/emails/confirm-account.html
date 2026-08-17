@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Confirme ton compte</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 24px;">
+    <div style="max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 8px; padding: 32px;">
+        <h1 style="color: #1a1a1a; font-size: 20px;">Bienvenue sur Grand Tour DBSCG, <span th:text="${username}">joueur</span> !</h1>
+        <p style="color: #444; font-size: 14px; line-height: 1.5;">
+            Merci de t'être inscrit. Confirme ton adresse email pour activer ton compte :
+        </p>
+        <p style="text-align: center; margin: 32px 0;">
+            <a th:href="${confirmLink}"
+               style="background-color: #1a73e8; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 14px;">
+                Confirmer mon compte
+            </a>
+        </p>
+        <p style="color: #888; font-size: 12px; line-height: 1.5;">
+            Si le bouton ne fonctionne pas, copie-colle ce lien dans ton navigateur :<br />
+            <span th:text="${confirmLink}">http://localhost:4200/auth/verified?token=...</span>
+        </p>
+    </div>
+</body>
+</html>

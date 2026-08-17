@@ -37,6 +37,7 @@ public class JwtUtils {
         return builder
                 .subject(u.getUsername())
                 .claim("id", u.getId().toString())
+                .claim("email", u.getEmail())
                 .claim("roles", u.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList())

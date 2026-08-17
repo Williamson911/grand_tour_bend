@@ -34,6 +34,7 @@ public class AuthInitializer implements CommandLineRunner {
 
             User admin = new User("admin", "admin@grandtourbend.local", passwordEncoder.encode("admin123"));
             admin.getRoles().add(adminRole);
+            admin.setConfirmed(true);
 
             userRepository.save(admin);
         }

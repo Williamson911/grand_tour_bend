@@ -56,4 +56,31 @@ public class EventServiceImpl implements EventService {
 
         return eventRepository.save(event).getId();
     }
+
+    @Override
+    public void update(UUID id, Event patch, Long eventTypeId) {
+        Event event = findById(id);
+
+        if (eventRepository.existsByNameAndIdNot(patch.getName(), id)) {
+            throw new EventNameAlreadyExist("Event with name " + patch.getName() + " already exist");
+        }
+
+        EventType type = eventTypeRepository.findById(eventTypeId).orElseThrow(() ->
+                new EventTypeNotFoundException("EventType with id " + eventTypeId + " not found")
+        );
+
+        event.setName(patch.getName());
+        event.setDate(patch.getDate());
+        event.setAddress(patch.getAddress());
+        event.setRegisterLink(patch.getRegisterLink());
+        event.setType(type);
+
+        eventRepository.save(event);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        Event event = findById(id);
+        eventRepository.delete(event);
+    }
 }

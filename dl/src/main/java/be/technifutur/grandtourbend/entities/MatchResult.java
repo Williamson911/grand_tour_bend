@@ -4,5 +4,6 @@ public record MatchResult(
         int round,
         String result,
         String opponentName,
-        String opponentLeader
+        String opponentLeader,
+        String notes
 ) {}

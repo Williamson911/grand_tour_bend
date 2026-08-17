@@ -33,6 +33,18 @@ public class User extends UuidBaseEntity implements UserDetails {
     @Getter @Setter
     private String bandaiTcgId;
 
+    @Column(nullable = false, columnDefinition = "boolean not null default false")
+    @Getter @Setter
+    private boolean confirmed = false;
+
+    @Column(name = "confirmation_token")
+    @Getter @Setter
+    private String confirmationToken;
+
+    @Column(name = "password_reset_token")
+    @Getter @Setter
+    private String passwordResetToken;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",

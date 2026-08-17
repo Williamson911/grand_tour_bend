@@ -13,4 +13,7 @@ public interface EventRepository extends JpaRepository<Event, UUID>, JpaSpecific
 
     @Query("select count(e) > 0 from Event e where e.name ilike :name")
     boolean existsByName(String name);
+
+    @Query("select count(e) > 0 from Event e where e.name ilike :name and e.id <> :id")
+    boolean existsByNameAndIdNot(String name, UUID id);
 }

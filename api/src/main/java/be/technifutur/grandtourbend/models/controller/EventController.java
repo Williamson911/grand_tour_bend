@@ -42,7 +42,9 @@ public class EventController {
             @RequestParam( required = false, defaultValue = "10") int size,
             @RequestParam(required = false, defaultValue = "date") String sort
     ) {
-        Set<UUID> registeredIds = registrationService.registeredEventIds(session.id());
+        Set<UUID> registeredIds = session != null
+                ? registrationService.registeredEventIds(session.id())
+                : Set.of();
         var eventPage = eventService.findAll(params, PageRequest.of(page, size, Sort.by(sort)))
                 .map(e -> EventIndexResponse.fromEvent(e, registeredIds.contains(e.getId())));
         return ResponseEntity.ok(eventPage);
@@ -59,7 +61,7 @@ public class EventController {
 
         var event = eventService.findById(id);
 
-        boolean registered = registrationService.isRegistered(session.id(), id);
+        boolean registered = session != null && registrationService.isRegistered(session.id(), id);
         var response = EventIndexResponse.fromEvent(event, registered);
 
         return ResponseEntity.ok(response);
@@ -84,5 +86,33 @@ public class EventController {
                 .toUri();
 
         return ResponseEntity.created(uri).build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    @Operation(summary = "Modifier un event", description = "Réservé aux administrateurs.")
+    @ApiResponse(responseCode = "204", description = "Event modifié")
+    @ApiResponse(responseCode = "403", description = "Réservé au rôle ADMIN")
+    @ApiResponse(responseCode = "404", description = "Event ou EventType introuvable")
+    @ApiResponse(responseCode = "409", description = "Un event porte déjà ce nom")
+    public ResponseEntity<Void> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody EventRequest request
+    ) {
+        eventService.update(id, request.toEvent(), request.eventTypeId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer un event", description = "Réservé aux administrateurs.")
+    @ApiResponse(responseCode = "204", description = "Event supprimé")
+    @ApiResponse(responseCode = "403", description = "Réservé au rôle ADMIN")
+    @ApiResponse(responseCode = "404", description = "Event introuvable")
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID id
+    ) {
+        eventService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

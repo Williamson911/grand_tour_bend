@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface ExpensesRepository extends JpaRepository<Expenses, UUID> {
     List<Expenses> findByUser_Id(UUID userId);
+
+    void deleteAllByUser_Id(UUID userId);
 }

@@ -25,7 +25,7 @@ public class Initializer implements CommandLineRunner {
         if (eventTypeRepository.count() == 0) {
             eventTypeRepository.saveAll(List.of(
                     new EventType("Regional", "🏆", "#d4af37"),
-                    new EventType("Final", "🥇", "#c0392b")
+                    new EventType("Finals", "🥇", "#c0392b")
             ));
         }
 

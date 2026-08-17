@@ -13,4 +13,8 @@ public interface EventService {
     Event findById(UUID id);
 
     UUID save(Event event, Long eventTypeId);
+
+    void update(UUID id, Event event, Long eventTypeId);
+
+    void delete(UUID id);
 }
