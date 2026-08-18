@@ -31,10 +31,11 @@ public class Results extends UuidBaseEntity {
     private String deckName;
 
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "leader_card_id", nullable = false)
     @Getter
     @Setter
-    private String leaderPlayed;
+    private Card leaderCard;
 
     @Column
     @Getter

@@ -2,6 +2,7 @@ package be.technifutur.grandtourbend.models.results.responses;
 
 import be.technifutur.grandtourbend.entities.MatchResult;
 import be.technifutur.grandtourbend.entities.Results;
+import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,8 +14,8 @@ public record ResultsResponse(
         UUID userId,
         UUID eventId,
         String deckName,
-        String leaderPlayed,
-        Integer  placement,
+        CardResponse leaderCard,
+        Integer placement,
         Integer totalPlayers,
         BigDecimal prizes,
         String notes,
@@ -28,7 +29,7 @@ public record ResultsResponse(
                 r.getUser().getId(),
                 r.getEvent().getId(),
                 r.getDeckName(),
-                r.getLeaderPlayed(),
+                CardResponse.fromCard(r.getLeaderCard()),
                 r.getPlacement(),
                 r.getTotalPlayers(),
                 r.getPrizes(),

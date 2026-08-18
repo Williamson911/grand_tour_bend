@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/ship/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/event", "/event/*", "/event-type").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cards", "/cards/*").permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
