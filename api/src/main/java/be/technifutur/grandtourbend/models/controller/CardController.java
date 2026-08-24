@@ -2,6 +2,7 @@ package be.technifutur.grandtourbend.models.controller;
 
 import be.technifutur.grandtourbend.CardService;
 import be.technifutur.grandtourbend.models.card.responses.CardDetailResponse;
+import be.technifutur.grandtourbend.models.card.responses.CardFacetsResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +49,13 @@ public class CardController {
             @RequestParam(required = false, defaultValue = "20") int size
     ) {
         return ResponseEntity.ok(cardService.getPrintings(type, search, color, series, PageRequest.of(page, size)));
+    }
+
+    @GetMapping("/facets")
+    @Operation(summary = "Valeurs de filtres disponibles", description = "Liste les couleurs et séries réellement présentes dans le catalogue, pour peupler des filtres en dropdown.")
+    @ApiResponse(responseCode = "200", description = "Couleurs et séries distinctes")
+    public ResponseEntity<CardFacetsResponse> getFacets() {
+        return ResponseEntity.ok(cardService.getFacets());
     }
 
     @GetMapping("/{id}")

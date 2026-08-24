@@ -44,9 +44,16 @@ public class CollectionServiceImpl implements CollectionService {
                         c.getId(),
                         c.getName(),
                         collectionCardRepository.sumQuantityByCollection_Id(c.getId()),
-                        collectionCardRepository.sumTotalPriceByCollection_Id(c.getId())
+                        collectionCardRepository.sumTotalPriceByCollection_Id(c.getId()),
+                        thumbnailImgLink(c.getId())
                 ))
                 .toList();
+    }
+
+    private String thumbnailImgLink(UUID collectionId) {
+        return collectionCardRepository.findTopByCollection_IdOrderByPriceDesc(collectionId)
+                .map(cc -> cc.getVariant() != null ? cc.getVariant().getImgLink() : cc.getCard().getImgLink())
+                .orElse(null);
     }
 
     @Override
@@ -113,6 +120,7 @@ public class CollectionServiceImpl implements CollectionService {
             cc.setVariant(variant);
             cc.setQuantity(item.quantity());
             cc.setPrice(item.price());
+            cc.setLanguage(item.language());
             return cc;
         }).toList();
     }

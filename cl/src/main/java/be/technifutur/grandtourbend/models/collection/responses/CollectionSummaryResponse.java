@@ -7,6 +7,7 @@ public record CollectionSummaryResponse(
         UUID id,
         String name,
         long cardCount,
-        BigDecimal totalPrice
+        BigDecimal totalPrice,
+        String thumbnailImgLink
 ) {
 }

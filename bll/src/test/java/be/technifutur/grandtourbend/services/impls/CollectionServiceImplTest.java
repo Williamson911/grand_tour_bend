@@ -69,7 +69,7 @@ class CollectionServiceImplTest {
 
         CollectionRequest request = new CollectionRequest(
                 "Ma collection",
-                List.of(new CollectionItemRequest(cardId, null, 3, BigDecimal.valueOf(12.5)))
+                List.of(new CollectionItemRequest(cardId, null, 3, BigDecimal.valueOf(12.5), null))
         );
 
         CollectionResponse response = collectionService.create(userId, request);
@@ -83,13 +83,55 @@ class CollectionServiceImplTest {
     }
 
     @Test
+    void create_withLanguageSet_savesCollectionCardWithLanguage() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
+        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card()));
+        when(collectionRepository.save(any(Collection.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(collectionCardRepository.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+        when(collectionCardRepository.findByCollection_Id(any())).thenReturn(List.of());
+
+        CollectionRequest request = new CollectionRequest(
+                "Ma collection",
+                List.of(new CollectionItemRequest(cardId, null, 3, BigDecimal.valueOf(12.5), "FR"))
+        );
+
+        collectionService.create(userId, request);
+
+        ArgumentCaptor<List<CollectionCard>> captor = ArgumentCaptor.forClass(List.class);
+        org.mockito.Mockito.verify(collectionCardRepository).saveAll(captor.capture());
+        assertThat(captor.getValue()).hasSize(1);
+        assertThat(captor.getValue().getFirst().getLanguage()).isEqualTo("FR");
+    }
+
+    @Test
+    void create_withoutLanguage_savesCollectionCardWithNullLanguage() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
+        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card()));
+        when(collectionRepository.save(any(Collection.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(collectionCardRepository.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+        when(collectionCardRepository.findByCollection_Id(any())).thenReturn(List.of());
+
+        CollectionRequest request = new CollectionRequest(
+                "Ma collection",
+                List.of(new CollectionItemRequest(cardId, null, 3, BigDecimal.valueOf(12.5), null))
+        );
+
+        collectionService.create(userId, request);
+
+        ArgumentCaptor<List<CollectionCard>> captor = ArgumentCaptor.forClass(List.class);
+        org.mockito.Mockito.verify(collectionCardRepository).saveAll(captor.capture());
+        assertThat(captor.getValue()).hasSize(1);
+        assertThat(captor.getValue().getFirst().getLanguage()).isNull();
+    }
+
+    @Test
     void create_whenCardDoesNotExist_throwsCardNotFoundException() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
         when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
 
         CollectionRequest request = new CollectionRequest(
                 "Ma collection",
-                List.of(new CollectionItemRequest(cardId, null, 1, BigDecimal.ONE))
+                List.of(new CollectionItemRequest(cardId, null, 1, BigDecimal.ONE, null))
         );
 
         assertThatThrownBy(() -> collectionService.create(userId, request))
@@ -115,7 +157,7 @@ class CollectionServiceImplTest {
 
         CollectionRequest request = new CollectionRequest(
                 "Ma collection",
-                List.of(new CollectionItemRequest(cardId, variantId, 1, BigDecimal.ONE))
+                List.of(new CollectionItemRequest(cardId, variantId, 1, BigDecimal.ONE, null))
         );
 
         assertThatThrownBy(() -> collectionService.create(userId, request))
@@ -134,7 +176,7 @@ class CollectionServiceImplTest {
 
         CollectionRequest request = new CollectionRequest(
                 "New name",
-                List.of(new CollectionItemRequest(cardId, null, 2, BigDecimal.TEN))
+                List.of(new CollectionItemRequest(cardId, null, 2, BigDecimal.TEN, null))
         );
 
         CollectionResponse response = collectionService.update(userId, collectionId, request);
@@ -188,6 +230,7 @@ class CollectionServiceImplTest {
         when(collectionRepository.findByUser_Id(userId)).thenReturn(List.of(collection));
         when(collectionCardRepository.sumQuantityByCollection_Id(collection.getId())).thenReturn(5L);
         when(collectionCardRepository.sumTotalPriceByCollection_Id(collection.getId())).thenReturn(BigDecimal.valueOf(42.5));
+        when(collectionCardRepository.findTopByCollection_IdOrderByPriceDesc(collection.getId())).thenReturn(Optional.empty());
 
         List<CollectionSummaryResponse> result = collectionService.getAll(userId);
 
@@ -195,6 +238,64 @@ class CollectionServiceImplTest {
         assertThat(result.getFirst().name()).isEqualTo("Ma collection");
         assertThat(result.getFirst().cardCount()).isEqualTo(5L);
         assertThat(result.getFirst().totalPrice()).isEqualByComparingTo("42.5");
+    }
+
+    @Test
+    void getAll_whenCollectionHasItems_returnsThumbnailImgLinkFromMostExpensiveCard() {
+        Collection collection = new Collection(new User(), "Ma collection");
+        Card card = card();
+        card.setImgLink("https://example.com/card.png");
+        CollectionCard topCard = new CollectionCard();
+        topCard.setCard(card);
+        topCard.setVariant(null);
+        topCard.setQuantity(1);
+        topCard.setPrice(BigDecimal.valueOf(99.99));
+
+        when(collectionRepository.findByUser_Id(userId)).thenReturn(List.of(collection));
+        when(collectionCardRepository.sumQuantityByCollection_Id(collection.getId())).thenReturn(1L);
+        when(collectionCardRepository.sumTotalPriceByCollection_Id(collection.getId())).thenReturn(BigDecimal.valueOf(99.99));
+        when(collectionCardRepository.findTopByCollection_IdOrderByPriceDesc(collection.getId())).thenReturn(Optional.of(topCard));
+
+        List<CollectionSummaryResponse> result = collectionService.getAll(userId);
+
+        assertThat(result.getFirst().thumbnailImgLink()).isEqualTo("https://example.com/card.png");
+    }
+
+    @Test
+    void getAll_whenCollectionIsEmpty_returnsNullThumbnailImgLink() {
+        Collection collection = new Collection(new User(), "Ma collection");
+        when(collectionRepository.findByUser_Id(userId)).thenReturn(List.of(collection));
+        when(collectionCardRepository.sumQuantityByCollection_Id(collection.getId())).thenReturn(0L);
+        when(collectionCardRepository.sumTotalPriceByCollection_Id(collection.getId())).thenReturn(BigDecimal.ZERO);
+        when(collectionCardRepository.findTopByCollection_IdOrderByPriceDesc(collection.getId())).thenReturn(Optional.empty());
+
+        List<CollectionSummaryResponse> result = collectionService.getAll(userId);
+
+        assertThat(result.getFirst().thumbnailImgLink()).isNull();
+    }
+
+    @Test
+    void getAll_whenTopCardHasVariant_returnsVariantImgLinkOverCardImgLink() {
+        Collection collection = new Collection(new User(), "Ma collection");
+        Card card = card();
+        card.setImgLink("https://example.com/card.png");
+        CardVariant variant = new CardVariant();
+        variant.setCard(card);
+        variant.setImgLink("https://example.com/variant.png");
+        CollectionCard topCard = new CollectionCard();
+        topCard.setCard(card);
+        topCard.setVariant(variant);
+        topCard.setQuantity(1);
+        topCard.setPrice(BigDecimal.valueOf(150));
+
+        when(collectionRepository.findByUser_Id(userId)).thenReturn(List.of(collection));
+        when(collectionCardRepository.sumQuantityByCollection_Id(collection.getId())).thenReturn(1L);
+        when(collectionCardRepository.sumTotalPriceByCollection_Id(collection.getId())).thenReturn(BigDecimal.valueOf(150));
+        when(collectionCardRepository.findTopByCollection_IdOrderByPriceDesc(collection.getId())).thenReturn(Optional.of(topCard));
+
+        List<CollectionSummaryResponse> result = collectionService.getAll(userId);
+
+        assertThat(result.getFirst().thumbnailImgLink()).isEqualTo("https://example.com/variant.png");
     }
 
     @Test

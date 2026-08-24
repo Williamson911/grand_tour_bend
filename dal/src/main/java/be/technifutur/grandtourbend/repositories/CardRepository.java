@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -66,4 +67,15 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
             @Param("series") String series,
             Pageable pageable
     );
+
+    @Query(value = "SELECT DISTINCT color FROM cards WHERE color IS NOT NULL ORDER BY color", nativeQuery = true)
+    List<String> findDistinctColors();
+
+    @Query(value = """
+            SELECT series FROM cards
+            UNION
+            SELECT series FROM card_variants
+            ORDER BY series
+            """, nativeQuery = true)
+    List<String> findDistinctSeries();
 }

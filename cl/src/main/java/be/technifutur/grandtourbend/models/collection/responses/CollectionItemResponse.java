@@ -11,6 +11,7 @@ public record CollectionItemResponse(
         UUID variantId,
         Integer quantity,
         BigDecimal price,
+        String language,
         CardPrintingResponse card
 ) {
     public static CollectionItemResponse fromCollectionCard(CollectionCard cc) {
@@ -29,6 +30,6 @@ public record CollectionItemResponse(
                 variant != null ? variant.getRarity() : card.getRarity(),
                 variant != null ? variant.getImgLink() : card.getImgLink()
         );
-        return new CollectionItemResponse(card.getId(), variantId, cc.getQuantity(), cc.getPrice(), printing);
+        return new CollectionItemResponse(card.getId(), variantId, cc.getQuantity(), cc.getPrice(), cc.getLanguage(), printing);
     }
 }

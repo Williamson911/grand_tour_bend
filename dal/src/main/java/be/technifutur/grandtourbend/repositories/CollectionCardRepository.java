@@ -9,12 +9,16 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface CollectionCardRepository extends JpaRepository<CollectionCard, UUID> {
     @EntityGraph(attributePaths = {"card", "variant"})
     List<CollectionCard> findByCollection_Id(UUID collectionId);
+
+    @EntityGraph(attributePaths = {"card", "variant"})
+    Optional<CollectionCard> findTopByCollection_IdOrderByPriceDesc(UUID collectionId);
 
     @Query("SELECT COALESCE(SUM(cc.quantity), 0) FROM CollectionCard cc WHERE cc.collection.id = :collectionId")
     long sumQuantityByCollection_Id(@Param("collectionId") UUID collectionId);

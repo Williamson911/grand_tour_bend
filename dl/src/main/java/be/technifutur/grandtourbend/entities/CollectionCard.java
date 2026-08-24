@@ -40,4 +40,9 @@ public class CollectionCard extends UuidBaseEntity {
     @Getter
     @Setter
     private BigDecimal price;
+
+    @Column
+    @Getter
+    @Setter
+    private String language;
 }

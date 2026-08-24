@@ -3,6 +3,7 @@ package be.technifutur.grandtourbend.services.impls;
 import be.technifutur.grandtourbend.entities.Card;
 import be.technifutur.grandtourbend.exceptions.CardNotFoundException;
 import be.technifutur.grandtourbend.models.card.responses.CardDetailResponse;
+import be.technifutur.grandtourbend.models.card.responses.CardFacetsResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 import be.technifutur.grandtourbend.repositories.CardPrintingProjection;
@@ -173,5 +174,18 @@ class CardServiceImplTest {
         assertThat(result.getContent().getFirst().cardNumber()).isEqualTo("BT18-030");
         assertThat(result.getContent().getFirst().variantId()).isNull();
         verify(cardRepository).findPrintings("LEADER", "Goku", "Red", "BT18", pageable);
+    }
+
+    @Test
+    void getFacets_returnsDistinctColorsAndSeriesFromRepository() {
+        when(cardRepository.findDistinctColors()).thenReturn(List.of("Blue", "Red"));
+        when(cardRepository.findDistinctSeries()).thenReturn(List.of("BT1", "BT2"));
+
+        CardFacetsResponse result = cardService.getFacets();
+
+        assertThat(result.colors()).containsExactly("Blue", "Red");
+        assertThat(result.series()).containsExactly("BT1", "BT2");
+        verify(cardRepository).findDistinctColors();
+        verify(cardRepository).findDistinctSeries();
     }
 }

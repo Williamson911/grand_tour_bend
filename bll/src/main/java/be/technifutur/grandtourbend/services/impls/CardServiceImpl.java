@@ -4,6 +4,7 @@ import be.technifutur.grandtourbend.CardService;
 import be.technifutur.grandtourbend.entities.Card;
 import be.technifutur.grandtourbend.exceptions.CardNotFoundException;
 import be.technifutur.grandtourbend.models.card.responses.CardDetailResponse;
+import be.technifutur.grandtourbend.models.card.responses.CardFacetsResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 import be.technifutur.grandtourbend.repositories.CardPrintingProjection;
@@ -76,5 +77,10 @@ public class CardServiceImpl implements CardService {
                 .orElseThrow(() -> new CardNotFoundException("Card with id " + id + " not found"));
 
         return CardDetailResponse.fromCard(card);
+    }
+
+    @Override
+    public CardFacetsResponse getFacets() {
+        return new CardFacetsResponse(cardRepository.findDistinctColors(), cardRepository.findDistinctSeries());
     }
 }
