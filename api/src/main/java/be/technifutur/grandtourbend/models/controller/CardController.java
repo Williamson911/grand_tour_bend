@@ -2,6 +2,7 @@ package be.technifutur.grandtourbend.models.controller;
 
 import be.technifutur.grandtourbend.CardService;
 import be.technifutur.grandtourbend.models.card.responses.CardDetailResponse;
+import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,6 +34,20 @@ public class CardController {
             @RequestParam(required = false, defaultValue = "20") int size
     ) {
         return ResponseEntity.ok(cardService.getAll(type, search, PageRequest.of(page, size)));
+    }
+
+    @GetMapping("/printings")
+    @Operation(summary = "Lister les impressions de cartes", description = "Une ligne par impression réelle (carte de base + chaque variante), filtrable par type, recherche de nom, couleur et série.")
+    @ApiResponse(responseCode = "200", description = "Page d'impressions")
+    public ResponseEntity<Page<CardPrintingResponse>> getPrintings(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String series,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(cardService.getPrintings(type, search, color, series, PageRequest.of(page, size)));
     }
 
     @GetMapping("/{id}")

@@ -3,7 +3,9 @@ package be.technifutur.grandtourbend.services.impls;
 import be.technifutur.grandtourbend.entities.Card;
 import be.technifutur.grandtourbend.exceptions.CardNotFoundException;
 import be.technifutur.grandtourbend.models.card.responses.CardDetailResponse;
+import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
+import be.technifutur.grandtourbend.repositories.CardPrintingProjection;
 import be.technifutur.grandtourbend.repositories.CardRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,36 +63,49 @@ class CardServiceImplTest {
         assertThat(result.getContent().getFirst().cardType()).isEqualTo("LEADER");
         verify(cardRepository).findByCardType("LEADER", pageable);
         verify(cardRepository, never()).findAll(any(Pageable.class));
-        verify(cardRepository, never()).findByNameContainingIgnoreCase(anyString(), any(Pageable.class));
-        verify(cardRepository, never()).findByCardTypeAndNameContainingIgnoreCase(anyString(), anyString(), any(Pageable.class));
+        verify(cardRepository, never()).searchByNameOrBackName(anyString(), any(Pageable.class));
+        verify(cardRepository, never()).searchByCardTypeAndNameOrBackName(anyString(), anyString(), any(Pageable.class));
     }
 
     @Test
-    void getAll_withSearchFilter_delegatesToFindByNameContainingIgnoreCase() {
-        when(cardRepository.findByNameContainingIgnoreCase(eq("search"), any(Pageable.class)))
+    void getAll_withSearchFilter_delegatesToSearchByNameOrBackName() {
+        when(cardRepository.searchByNameOrBackName(eq("search"), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(leaderCard())));
 
         Page<CardResponse> result = cardService.getAll(null, "search", pageable);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(cardRepository).findByNameContainingIgnoreCase("search", pageable);
+        verify(cardRepository).searchByNameOrBackName("search", pageable);
         verify(cardRepository, never()).findAll(any(Pageable.class));
         verify(cardRepository, never()).findByCardType(anyString(), any(Pageable.class));
-        verify(cardRepository, never()).findByCardTypeAndNameContainingIgnoreCase(anyString(), anyString(), any(Pageable.class));
+        verify(cardRepository, never()).searchByCardTypeAndNameOrBackName(anyString(), anyString(), any(Pageable.class));
     }
 
     @Test
-    void getAll_withTypeAndSearchFilters_delegatesToFindByCardTypeAndNameContainingIgnoreCase() {
-        when(cardRepository.findByCardTypeAndNameContainingIgnoreCase(eq("LEADER"), eq("Goku"), any(Pageable.class)))
+    void getAll_withSearchFilter_matchesCardsByAwakenedBackNameToo() {
+        Card godSonGoku = leaderCard();
+        godSonGoku.setBackName("SS4 Son Goku, Guardian of History");
+        when(cardRepository.searchByNameOrBackName(eq("Guardian of History"), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(godSonGoku)));
+
+        Page<CardResponse> result = cardService.getAll(null, "Guardian of History", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().backName()).isEqualTo("SS4 Son Goku, Guardian of History");
+    }
+
+    @Test
+    void getAll_withTypeAndSearchFilters_delegatesToSearchByCardTypeAndNameOrBackName() {
+        when(cardRepository.searchByCardTypeAndNameOrBackName(eq("LEADER"), eq("Goku"), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(leaderCard())));
 
         Page<CardResponse> result = cardService.getAll("LEADER", "Goku", pageable);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(cardRepository).findByCardTypeAndNameContainingIgnoreCase("LEADER", "Goku", pageable);
+        verify(cardRepository).searchByCardTypeAndNameOrBackName("LEADER", "Goku", pageable);
         verify(cardRepository, never()).findAll(any(Pageable.class));
         verify(cardRepository, never()).findByCardType(anyString(), any(Pageable.class));
-        verify(cardRepository, never()).findByNameContainingIgnoreCase(anyString(), any(Pageable.class));
+        verify(cardRepository, never()).searchByNameOrBackName(anyString(), any(Pageable.class));
     }
 
     @Test
@@ -102,8 +117,8 @@ class CardServiceImplTest {
         assertThat(result.getContent()).hasSize(1);
         verify(cardRepository).findAll(pageable);
         verify(cardRepository, never()).findByCardType(anyString(), any(Pageable.class));
-        verify(cardRepository, never()).findByNameContainingIgnoreCase(anyString(), any(Pageable.class));
-        verify(cardRepository, never()).findByCardTypeAndNameContainingIgnoreCase(anyString(), anyString(), any(Pageable.class));
+        verify(cardRepository, never()).searchByNameOrBackName(anyString(), any(Pageable.class));
+        verify(cardRepository, never()).searchByCardTypeAndNameOrBackName(anyString(), anyString(), any(Pageable.class));
     }
 
     @Test
@@ -133,5 +148,30 @@ class CardServiceImplTest {
 
         assertThat(exception).isNotNull();
         assertThat(exception.getError()).asString().contains(id.toString());
+    }
+
+    @Test
+    void getPrintings_delegatesToFindPrintingsWithAllFilters() {
+        CardPrintingProjection projection = new CardPrintingProjection() {
+            public UUID getCardId() { return UUID.fromString("00000000-0000-0000-0000-000000000001"); }
+            public UUID getVariantId() { return null; }
+            public String getName() { return "Son Goku"; }
+            public String getBackName() { return null; }
+            public String getCardType() { return "LEADER"; }
+            public String getColor() { return "Red"; }
+            public String getCardNumber() { return "BT18-030"; }
+            public String getSeries() { return "BT18"; }
+            public String getRarity() { return "Common[C]"; }
+            public String getImgLink() { return "BT18-030"; }
+        };
+        when(cardRepository.findPrintings(eq("LEADER"), eq("Goku"), eq("Red"), eq("BT18"), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(projection)));
+
+        Page<CardPrintingResponse> result = cardService.getPrintings("LEADER", "Goku", "Red", "BT18", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().cardNumber()).isEqualTo("BT18-030");
+        assertThat(result.getContent().getFirst().variantId()).isNull();
+        verify(cardRepository).findPrintings("LEADER", "Goku", "Red", "BT18", pageable);
     }
 }

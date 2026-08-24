@@ -22,10 +22,5 @@
             <artifactId>dl</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>be.technifutur</groupId>
-            <artifactId>cl</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>
