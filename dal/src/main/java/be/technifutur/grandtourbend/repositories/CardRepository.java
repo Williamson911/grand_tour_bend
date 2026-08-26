@@ -85,9 +85,9 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
     List<String> findDistinctSeries();
 
     @Query(value = """
-            SELECT rarity FROM cards
+            SELECT rarity FROM cards WHERE rarity IS NOT NULL
             UNION
-            SELECT rarity FROM card_variants
+            SELECT rarity FROM card_variants WHERE rarity IS NOT NULL
             ORDER BY rarity
             """, nativeQuery = true)
     List<String> findDistinctRarities();
