@@ -4,6 +4,7 @@ import java.util.List;
 
 public record CardFacetsResponse(
         List<String> colors,
-        List<String> series
+        List<String> series,
+        List<String> rarities
 ) {
 }

@@ -42,13 +42,14 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Page<CardPrintingResponse> getPrintings(String type, String search, String color, String series, Pageable pageable) {
+    public Page<CardPrintingResponse> getPrintings(String type, String search, String color, String series, String rarity, Pageable pageable) {
         String normalizedType = blankToNull(type);
         String normalizedSearch = blankToNull(search);
         String normalizedColor = blankToNull(color);
         String normalizedSeries = blankToNull(series);
+        String normalizedRarity = blankToNull(rarity);
         return cardRepository
-                .findPrintings(normalizedType, normalizedSearch, normalizedColor, normalizedSeries, pageable)
+                .findPrintings(normalizedType, normalizedSearch, normalizedColor, normalizedSeries, normalizedRarity, pageable)
                 .map(this::toPrintingResponse);
     }
 
@@ -81,6 +82,10 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public CardFacetsResponse getFacets() {
-        return new CardFacetsResponse(cardRepository.findDistinctColors(), cardRepository.findDistinctSeries());
+        return new CardFacetsResponse(
+                cardRepository.findDistinctColors(),
+                cardRepository.findDistinctSeries(),
+                cardRepository.findDistinctRarities()
+        );
     }
 }

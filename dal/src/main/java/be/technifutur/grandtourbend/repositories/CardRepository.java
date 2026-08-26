@@ -33,6 +33,7 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
                       AND (:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')))
                       AND (:color IS NULL OR c.color = :color)
                       AND (:series IS NULL OR c.series = :series)
+                      AND (:rarity IS NULL OR c.rarity = :rarity)
                     UNION ALL
                     SELECT c.id AS card_id, v.id AS variant_id, c.name, c.back_name, c.card_type, c.color, v.card_number, v.series, v.rarity, v.img_link
                     FROM card_variants v
@@ -41,6 +42,7 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
                       AND (:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')))
                       AND (:color IS NULL OR c.color = :color)
                       AND (:series IS NULL OR v.series = :series)
+                      AND (:rarity IS NULL OR v.rarity = :rarity)
                     ORDER BY name, card_number
                     """,
             countQuery = """
@@ -50,12 +52,14 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
                           AND (:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')))
                           AND (:color IS NULL OR c.color = :color)
                           AND (:series IS NULL OR c.series = :series)
+                          AND (:rarity IS NULL OR c.rarity = :rarity)
                         UNION ALL
                         SELECT v.id FROM card_variants v JOIN cards c ON c.id = v.card_id
                         WHERE (:type IS NULL OR c.card_type = :type)
                           AND (:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')))
                           AND (:color IS NULL OR c.color = :color)
                           AND (:series IS NULL OR v.series = :series)
+                          AND (:rarity IS NULL OR v.rarity = :rarity)
                     ) sub
                     """,
             nativeQuery = true
@@ -65,6 +69,7 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
             @Param("search") String search,
             @Param("color") String color,
             @Param("series") String series,
+            @Param("rarity") String rarity,
             Pageable pageable
     );
 
@@ -78,4 +83,12 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
             ORDER BY series
             """, nativeQuery = true)
     List<String> findDistinctSeries();
+
+    @Query(value = """
+            SELECT rarity FROM cards
+            UNION
+            SELECT rarity FROM card_variants
+            ORDER BY rarity
+            """, nativeQuery = true)
+    List<String> findDistinctRarities();
 }

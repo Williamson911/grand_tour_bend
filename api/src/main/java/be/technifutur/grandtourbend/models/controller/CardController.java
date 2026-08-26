@@ -38,22 +38,23 @@ public class CardController {
     }
 
     @GetMapping("/printings")
-    @Operation(summary = "Lister les impressions de cartes", description = "Une ligne par impression réelle (carte de base + chaque variante), filtrable par type, recherche de nom, couleur et série.")
+    @Operation(summary = "Lister les impressions de cartes", description = "Une ligne par impression réelle (carte de base + chaque variante), filtrable par type, recherche de nom, couleur, série et rareté.")
     @ApiResponse(responseCode = "200", description = "Page d'impressions")
     public ResponseEntity<Page<CardPrintingResponse>> getPrintings(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String color,
             @RequestParam(required = false) String series,
+            @RequestParam(required = false) String rarity,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "20") int size
     ) {
-        return ResponseEntity.ok(cardService.getPrintings(type, search, color, series, PageRequest.of(page, size)));
+        return ResponseEntity.ok(cardService.getPrintings(type, search, color, series, rarity, PageRequest.of(page, size)));
     }
 
     @GetMapping("/facets")
-    @Operation(summary = "Valeurs de filtres disponibles", description = "Liste les couleurs et séries réellement présentes dans le catalogue, pour peupler des filtres en dropdown.")
-    @ApiResponse(responseCode = "200", description = "Couleurs et séries distinctes")
+    @Operation(summary = "Valeurs de filtres disponibles", description = "Liste les couleurs, séries et raretés réellement présentes dans le catalogue, pour peupler des filtres en dropdown.")
+    @ApiResponse(responseCode = "200", description = "Couleurs, séries et raretés distinctes")
     public ResponseEntity<CardFacetsResponse> getFacets() {
         return ResponseEntity.ok(cardService.getFacets());
     }
