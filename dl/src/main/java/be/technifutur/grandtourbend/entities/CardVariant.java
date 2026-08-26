@@ -41,6 +41,17 @@ public class CardVariant extends UuidBaseEntity {
     @Getter @Setter
     private String imgLink;
 
+    // Deliberately NOT @Lob — see the comment on Card.imageData for why: it
+    // avoids PostgreSQL's "oid" large-object mapping in favor of a plain
+    // bytea column.
+    @Basic(fetch = FetchType.LAZY)
+    @Getter @Setter
+    private byte[] imageData;
+
+    @Column
+    @Getter @Setter
+    private String imageContentType;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     @Getter @Setter

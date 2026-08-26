@@ -92,6 +92,20 @@ public class Card extends UuidBaseEntity {
     @Getter @Setter
     private String imgLink;
 
+    // Deliberately NOT @Lob: on PostgreSQL, Hibernate maps a @Lob byte[] to
+    // an "oid" column (large-object reference), which requires large-object
+    // API access and throws "Unable to access lob stream" for plain
+    // SELECT/INSERT usage outside that API. A plain byte[] column maps to
+    // VARBINARY, which the PostgreSQL dialect stores as "bytea" — a normal
+    // column that reads/writes like any other, which is what we want here.
+    @Basic(fetch = FetchType.LAZY)
+    @Getter @Setter
+    private byte[] imageData;
+
+    @Column
+    @Getter @Setter
+    private String imageContentType;
+
     @Column(nullable = false)
     @Getter @Setter
     private boolean isHorizontal;

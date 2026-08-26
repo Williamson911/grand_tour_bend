@@ -9,11 +9,13 @@ import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 import be.technifutur.grandtourbend.repositories.CardPrintingProjection;
 import be.technifutur.grandtourbend.repositories.CardRepository;
+import be.technifutur.grandtourbend.repositories.CardVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
+    private final CardVariantRepository cardVariantRepository;
 
     @Override
     public Page<CardResponse> getAll(String type, String search, Pageable pageable) {
@@ -87,5 +90,19 @@ public class CardServiceImpl implements CardService {
                 cardRepository.findDistinctSeries(),
                 cardRepository.findDistinctRarities()
         );
+    }
+
+    @Override
+    public Optional<CardImage> getImage(String imgLink) {
+        Optional<CardImage> fromCard = cardRepository.findByImgLink(imgLink)
+                .filter(c -> c.getImageData() != null)
+                .map(c -> new CardImage(c.getImageData(), c.getImageContentType()));
+        if (fromCard.isPresent()) {
+            return fromCard;
+        }
+
+        return cardVariantRepository.findByImgLink(imgLink)
+                .filter(v -> v.getImageData() != null)
+                .map(v -> new CardImage(v.getImageData(), v.getImageContentType()));
     }
 }

@@ -9,10 +9,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface CardRepository extends JpaRepository<Card, UUID> {
+    Optional<Card> findByCardNumber(String cardNumber);
+
+    Optional<Card> findByImgLink(String imgLink);
+
     Page<Card> findByCardType(String cardType, Pageable pageable);
 
     @Query("SELECT c FROM Card c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')) "

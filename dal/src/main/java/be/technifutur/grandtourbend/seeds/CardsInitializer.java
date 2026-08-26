@@ -6,6 +6,7 @@ import be.technifutur.grandtourbend.repositories.CardRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @Component
+@Order(1)
 @RequiredArgsConstructor
 public class CardsInitializer implements CommandLineRunner {
 

@@ -1,6 +1,8 @@
 package be.technifutur.grandtourbend.services.impls;
 
+import be.technifutur.grandtourbend.CardService;
 import be.technifutur.grandtourbend.entities.Card;
+import be.technifutur.grandtourbend.entities.CardVariant;
 import be.technifutur.grandtourbend.exceptions.CardNotFoundException;
 import be.technifutur.grandtourbend.models.card.responses.CardDetailResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardFacetsResponse;
@@ -8,6 +10,7 @@ import be.technifutur.grandtourbend.models.card.responses.CardPrintingResponse;
 import be.technifutur.grandtourbend.models.card.responses.CardResponse;
 import be.technifutur.grandtourbend.repositories.CardPrintingProjection;
 import be.technifutur.grandtourbend.repositories.CardRepository;
+import be.technifutur.grandtourbend.repositories.CardVariantRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +39,9 @@ class CardServiceImplTest {
 
     @Mock
     private CardRepository cardRepository;
+
+    @Mock
+    private CardVariantRepository cardVariantRepository;
 
     @InjectMocks
     private CardServiceImpl cardService;
@@ -190,5 +196,61 @@ class CardServiceImplTest {
         verify(cardRepository).findDistinctColors();
         verify(cardRepository).findDistinctSeries();
         verify(cardRepository).findDistinctRarities();
+    }
+
+    @Test
+    void getImage_whenCardHasStoredImage_returnsItWithoutCheckingVariants() {
+        Card card = leaderCard();
+        card.setImageData(new byte[]{1, 2, 3});
+        card.setImageContentType("image/webp");
+        when(cardRepository.findByImgLink("BT18-030")).thenReturn(Optional.of(card));
+
+        Optional<CardService.CardImage> result = cardService.getImage("BT18-030");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().data()).containsExactly(1, 2, 3);
+        assertThat(result.get().contentType()).isEqualTo("image/webp");
+        verify(cardVariantRepository, never()).findByImgLink(anyString());
+    }
+
+    @Test
+    void getImage_whenCardFoundButHasNoStoredImage_fallsBackToVariant() {
+        Card card = leaderCard();
+        card.setImageData(null);
+        when(cardRepository.findByImgLink("BT18-030_GDR")).thenReturn(Optional.of(card));
+
+        CardVariant variant = new CardVariant();
+        variant.setImageData(new byte[]{4, 5, 6});
+        variant.setImageContentType("image/webp");
+        when(cardVariantRepository.findByImgLink("BT18-030_GDR")).thenReturn(Optional.of(variant));
+
+        Optional<CardService.CardImage> result = cardService.getImage("BT18-030_GDR");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().data()).containsExactly(4, 5, 6);
+    }
+
+    @Test
+    void getImage_whenOnlyVariantMatches_returnsVariantImage() {
+        when(cardRepository.findByImgLink("BT18-030_GDR")).thenReturn(Optional.empty());
+        CardVariant variant = new CardVariant();
+        variant.setImageData(new byte[]{7, 8, 9});
+        variant.setImageContentType("image/webp");
+        when(cardVariantRepository.findByImgLink("BT18-030_GDR")).thenReturn(Optional.of(variant));
+
+        Optional<CardService.CardImage> result = cardService.getImage("BT18-030_GDR");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().data()).containsExactly(7, 8, 9);
+    }
+
+    @Test
+    void getImage_whenNothingMatches_returnsEmpty() {
+        when(cardRepository.findByImgLink("unknown")).thenReturn(Optional.empty());
+        when(cardVariantRepository.findByImgLink("unknown")).thenReturn(Optional.empty());
+
+        Optional<CardService.CardImage> result = cardService.getImage("unknown");
+
+        assertThat(result).isEmpty();
     }
 }
