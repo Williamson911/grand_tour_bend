@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface CardService {
     Page<CardResponse> getAll(String type, String search, Pageable pageable);
-    Page<CardPrintingResponse> getPrintings(String type, String search, String color, String series, Pageable pageable);
+    Page<CardPrintingResponse> getPrintings(String type, String search, String color, String series, String rarity, Pageable pageable);
     CardDetailResponse getById(UUID id);
     CardFacetsResponse getFacets();
 }

@@ -33,6 +33,11 @@ public class JwtUtils {
         this.parser = Jwts.parser().verifyWith(key).build();
     }
 
+    // JWTs require an expiration per spec, but the user wants to stay logged in
+    // until they explicitly log out — a 10-year lifetime is effectively "never"
+    // in practice while keeping the token spec-compliant.
+    private static final long TOKEN_LIFETIME_MS = 10L * 365 * 24 * 60 * 60 * 1000;
+
     public String generateToken(User u){
         return builder
                 .subject(u.getUsername())
@@ -42,7 +47,7 @@ public class JwtUtils {
                         .map(GrantedAuthority::getAuthority)
                         .toList())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 900 * 1000L))
+                .expiration(new Date(System.currentTimeMillis() + TOKEN_LIFETIME_MS))
                 .compact();
     }
 
